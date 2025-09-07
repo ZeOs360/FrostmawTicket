@@ -18,7 +18,11 @@ This bot is based on Turkish text. You can change it to different languages and 
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 </div>
+<div align="center">
+  
+[⭐ Star this repo on GitHub](https://github.com/ZeOs360/FrostmawTicket/stargazers)
 
+</div>
 ## 1. Setup / Getting Started
 
 Steps for users to run the project:
