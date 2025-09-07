@@ -58,7 +58,7 @@ client.once("ready", () => {
 const panelMessagePath = path.join(__dirname, 'panelMessageId.json');
 client.once('clientReady', async () => {
   console.log(chalk.green(`✅ Bot aktif: ${client.user.tag}`));
-  const channel = await client.channels.fetch('1413947721299136794');
+  const channel = await client.channels.fetch('1413947721299136794'); //  The channel ID to which the ticket panel will be sent
   let oldMessageId = null;
 
   // Eski panel mesajını sil
