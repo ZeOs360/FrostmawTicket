@@ -5,7 +5,8 @@ Developed to support game servers, it is fully functional with Node.js and Disco
 This bot is based on Turkish text. You can change it to different languages and use it.
 <div align="center">
   
-![Frostmaw Logo](https://github.com/user-attachments/assets/892926bf-b0d0-4779-9fd8-254bc2fda398)
+![Frostmaw Logo](https://github.com/user-attachments/assets/8e8380b2-8524-4f68-8cc5-7a0753cba780)
+
 
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
 ![Discord](https://img.shields.io/badge/Discord-Bot-7289DA?style=for-the-badge&logo=discord&logoColor=white)
