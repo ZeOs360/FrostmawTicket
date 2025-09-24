@@ -109,14 +109,27 @@ module.exports = async (interaction) => {
     const channel = interaction.channel;
     const tickets = loadTickets();
     const ticket = tickets[channel.id];
-    if (!ticket) return;
+    
+    if (!ticket) {
+      console.log(`Ticket bulunamadı: ${channel.id}`);
+      if (!interaction.replied && !interaction.deferred) {
+        return await interaction.reply({ 
+          content: 'Bu kanal için ticket bilgileri bulunamadı.', 
+          ephemeral: true 
+        });
+      }
+      return;
+    }
 
     const isAdmin = config.TicketRoleIds.some(roleId => interaction.member.roles.cache.has(roleId));
 
     if (interaction.customId === 'lock_ticket') {
       if (!isAdmin) {
-        return interaction.reply({ content: 'Sadece adminler bu işlemi yapabilir.', ephemeral: true });
+        return await interaction.reply({ content: 'Sadece adminler bu işlemi yapabilir.', ephemeral: true });
       }
+
+      // Önce interaction'ı defer et
+      await interaction.deferUpdate();
 
       // Ticket üzerinde kilit bilgisi yoksa ekle
       if (ticket.locked === undefined) ticket.locked = false;
@@ -124,7 +137,7 @@ module.exports = async (interaction) => {
       // Durumu tersine çevir
       ticket.locked = !ticket.locked;
 
-      // Kullanıcı izinlerini güncelle (deny kullanıyoruz)
+      // Kullanıcı izinlerini güncelle
       await channel.permissionOverwrites.edit(ticket.userId, {
         SendMessages: ticket.locked ? false : true
       });
@@ -137,14 +150,17 @@ module.exports = async (interaction) => {
           : `Yetkili <@${interaction.user.id}> kanalı **açtı**.`
       );
 
-      await interaction.deferUpdate();
       return;
     }
 
     if (interaction.customId === 'take_ticket') {
       if (!isAdmin) {
-        return interaction.reply({ content: 'Sadece adminler bu işlemi yapabilir.', ephemeral: true });
+        return await interaction.reply({ content: 'Sadece adminler bu işlemi yapabilir.', ephemeral: true });
       }
+
+      // Önce interaction'ı defer et
+      await interaction.deferUpdate();
+
       ticket.devralanYetkili = {
         id: interaction.user.id,
         username: interaction.user.username
@@ -181,14 +197,16 @@ module.exports = async (interaction) => {
         await panelMsg.edit({ embeds: [updatedEmbed], components: [updatedRow] });
       }
       await channel.send(`Yetkili <@${interaction.user.id}> desteği **devraldı**.`);
-      await interaction.deferUpdate();
       return;
     }
 
     if (interaction.customId === 'close_ticket') {
       if (!isAdmin && interaction.user.id !== ticket.userId) {
-        return interaction.reply({ content: 'Sadece adminler veya ticket sahibi kapatabilir.', ephemeral: true });
+        return await interaction.reply({ content: 'Sadece adminler veya ticket sahibi kapatabilir.', ephemeral: true });
       }
+
+      // Önce interaction'ı defer et
+      await interaction.deferUpdate();
 
       const panelMsg = await channel.messages.fetch(ticket.panelMsgId).catch(() => null);
       if (panelMsg) {
@@ -236,10 +254,9 @@ module.exports = async (interaction) => {
 
         delete tickets[channel.id];
         saveTickets(tickets);
-        await channel.delete();
+        await channel.delete().catch(console.error);
       }, 10000);
 
-      await interaction.deferUpdate();
       return;
     }
   }
