@@ -12,7 +12,7 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMembers
   ],
-  partials: [Partials.Channel]
+  partials: [Partials.Channel, Partials.Message]
 });
 
 // Komutları yükle
@@ -28,6 +28,8 @@ for (const file of commandFiles) {
 }
 
 client.on('interactionCreate', async interaction => {
+  console.log(`Interaction received: ${interaction.type} - ${interaction.customId || interaction.commandName}`);
+  
   // Slash komutları çalıştır
   if (interaction.isChatInputCommand()) {
     const command = client.commands.get(interaction.commandName);
@@ -64,14 +66,21 @@ client.on('interactionCreate', async interaction => {
   }
 
   // Ticket buton etkileşimlerini yönlendir
-  if (
-    interaction.isButton() &&
-    ['lock_ticket', 'close_ticket', 'take_ticket'].includes(interaction.customId)
-  ) {
-    try {
-      handleTicketInteraction(interaction);
-    } catch (err) {
-      console.error('Button interaction handling failed:', err);
+  if (interaction.isButton()) {
+    // Tüm ticket butonlarını handle et
+    if (['lock_ticket', 'close_ticket', 'take_ticket'].includes(interaction.customId)) {
+      try {
+        await handleTicketInteraction(interaction);
+      } catch (err) {
+        console.error('Button interaction handling failed:', err);
+        // Eğer interaction henüz yanıtlanmadıysa hata mesajı gönder
+        if (!interaction.replied && !interaction.deferred) {
+          await interaction.reply({ 
+            content: 'Buton işlemi sırasında bir hata oluştu. Lütfen tekrar deneyin.', 
+            ephemeral: true 
+          }).catch(console.error);
+        }
+      }
     }
   }
 });
